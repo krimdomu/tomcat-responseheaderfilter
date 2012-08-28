@@ -25,8 +25,6 @@ import java.util.*;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 import java.util.concurrent.ConcurrentHashMap;
-import org.apache.commons.logging.LogFactory;
-import org.apache.commons.logging.Log;
 import org.apache.commons.lang.StringUtils;
 
 /**
@@ -59,11 +57,13 @@ import org.apache.commons.lang.StringUtils;
  * @see ConfigProcessor#processConfig()
  */
 public class ResponseHeaderManagerFilter implements Filter {
-  private static Log logger = LogFactory.getLog(ResponseHeaderManagerFilter.class);
 
   //default config file
   private String configFileName = "/WEB-INF/response-header-manager.xml";
   private File configFile;
+
+  // FilterConfig instance
+  private FilterConfig filterConfigObj = null;
 
   //reload parameters
   private ConfReloadInfo confReloadInfo;
@@ -73,6 +73,8 @@ public class ResponseHeaderManagerFilter implements Filter {
   private static List<Pattern> urlPatterns = new ArrayList<Pattern>();
   
   public void init(FilterConfig filterConfig) throws ServletException, RuntimeException {
+    filterConfigObj = filterConfig;
+
     //if specified in web.xml, take that value as the config file
     if(StringUtils.isNotEmpty(filterConfig.getInitParameter("configFile"))){
       configFileName = filterConfig.getInitParameter("configFile");
@@ -163,11 +165,6 @@ public class ResponseHeaderManagerFilter implements Filter {
             Pattern queryParamValue = condition.getQueryParamValue();
             Matcher matcher = queryParamValue.matcher(requestParamValue);
             if(matcher.find()){
-              if(logger.isDebugEnabled()){
-                String requestUrl = requestUri +
-                    (StringUtils.isNotEmpty(request.getQueryString()) ? "?" + request.getQueryString() : "");
-                logger.debug("Applying conditional response headers to the request - " + requestUrl);
-              }
               applyResponseHeaders(request, response, conditionalResponseHeaders.get(condition), rulesForThisUri);
               ruleApplied = true;
               break;
@@ -178,11 +175,6 @@ public class ResponseHeaderManagerFilter implements Filter {
 
       //if none of the conditional rules matched; and their is a default mapping in the Rule, apply it
       if(!ruleApplied && rulesForThisUri.getDefaultResponseHeaders() != null){
-        if(logger.isDebugEnabled()){
-          String requestUrl = requestUri +
-              (StringUtils.isNotEmpty(request.getQueryString()) ? "?" + request.getQueryString() : "");
-          logger.debug("Applying default response headers to the request - " + requestUrl);
-        }
         applyResponseHeaders(request, response, rulesForThisUri.getDefaultResponseHeaders(), rulesForThisUri);
       }
     }
@@ -223,9 +215,6 @@ public class ResponseHeaderManagerFilter implements Filter {
       now - confReloadInfo.lastReloadCheckPerformedOn > confReloadInfo.reloadCheckInterval*1000 &&
       configFile.lastModified() > confReloadInfo.configFileLastModifiedTimeStamp
     ){
-      if(logger.isDebugEnabled()){
-        logger.debug("Response header manager config file has been modified, reloading now");
-      }
       long start = System.currentTimeMillis();
       confReloadInfo.configFileLastModifiedTimeStamp = configFile.lastModified();
       confReloadInfo.lastReloadCheckPerformedOn = now;
@@ -241,9 +230,6 @@ public class ResponseHeaderManagerFilter implements Filter {
       urlPatterns = new ArrayList<Pattern>(allRules.keySet());
 
       long end = System.currentTimeMillis();
-      if(logger.isDebugEnabled()){
-        logger.debug("Reload of Response header manager config file successful. Time taken to reload:" + (end-start) + "ms");
-      }
     }
   }
 

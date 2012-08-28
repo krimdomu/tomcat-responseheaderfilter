@@ -16,8 +16,6 @@
 
 package com.avlesh.web.filter.responseheaderfilter;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.w3c.dom.Document;
@@ -74,8 +72,6 @@ public class ConfigProcessor {
   //list of all parsed rules
   private List<Rule> rules = new ArrayList<Rule>();
 
-  protected static Log logger = LogFactory.getLog(ConfigProcessor.class);
-
   ConfigProcessor(File configFile){
     this.configFile = configFile;
   }
@@ -130,9 +126,6 @@ public class ConfigProcessor {
    * @see #getResponseHeader(org.w3c.dom.Node)
    */
   protected void processConfig(){
-    if(logger.isDebugEnabled()){
-      logger.debug("Processing the response header manager filter's config file: " + configFile.getName());
-    }
     DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
     Document doc;
     try{
@@ -179,7 +172,6 @@ public class ConfigProcessor {
 
           //no url specified in this mapping, skip and continue ...
           if(StringUtils.isEmpty(urlStr)){
-            logger.warn("Encountered a mapping without a mandatory url attribute. Skipping ...");
             continue;
           }
 
@@ -208,7 +200,6 @@ public class ConfigProcessor {
                   conditionalResponseHeaders.put(condition, responseHeaders);
                 }
               }else{
-                logger.warn("Both queryParamName and queryParamValue have to be set for the <" + Constants.CONDITIONAL + "> tag");
                 continue;
               }
             }
@@ -226,9 +217,6 @@ public class ConfigProcessor {
         }
       }else{
         //the filter is useless, no valid mappings found in the config file
-        if(logger.isDebugEnabled()){
-          logger.debug("No valid mappings found. Huh!");
-        }
       }
     }else{
       //absense of <response-header-mapper> node not expected, throwing a runtime exception
@@ -329,8 +317,6 @@ public class ConfigProcessor {
 
                 //something wrong with the header declaration, issuing a warning
                 if (responseHeaders.isEmpty()) {
-                  logger.warn("Skipping a <" + Constants.HEADER + "> node. " +
-                      "key and value are required attributes for these nodes");
                 }
               }
             }

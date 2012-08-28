@@ -8,11 +8,17 @@ This is a fork of L<http://code.google.com/p/responseheaderfilter>.
 
 =over 4
 
-=item commons-collections.jar
+=item *
 
-=item commons-lang.jar
+commons-collections.jar
 
-=item tomcat6-servlet-2.5-api.jar
+=item *
+
+commons-lang.jar
+
+=item *
+
+tomcat6-servlet-2.5-api.jar
 
 =back
 

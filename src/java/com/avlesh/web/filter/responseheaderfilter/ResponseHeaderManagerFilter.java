@@ -76,11 +76,17 @@ public class ResponseHeaderManagerFilter implements Filter {
     filterConfigObj = filterConfig;
 
     //if specified in web.xml, take that value as the config file
+
+    String fullConfigFilePath;
+
+    // only expand the path with the realpath if not defined
     if(StringUtils.isNotEmpty(filterConfig.getInitParameter("configFile"))){
-      configFileName = filterConfig.getInitParameter("configFile");
+      fullConfigFilePath = filterConfig.getInitParameter("configFile");
+    }
+    else {
+      fullConfigFilePath = filterConfig.getServletContext().getRealPath(configFileName);
     }
 
-    String fullConfigFilePath = filterConfig.getServletContext().getRealPath(configFileName);
     configFile = new File(fullConfigFilePath);
     if(!configFile.exists() || !configFile.canRead()){
       //not expecting this, the config file should exist and be readable

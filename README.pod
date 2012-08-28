@@ -1,0 +1,68 @@
+=pod
+
+=head1 Tomcat Filter to add Custom HTTP Response Header
+
+This is a fork of L<http://code.google.com/p/responseheaderfilter>.
+
+=head2 DEPENDENCIES
+
+=over 4
+
+=item commons-collections.jar
+
+=item commons-lang.jar
+
+=item tomcat6-servlet-2.5-api.jar
+
+=back
+
+=head2 BUILD
+
+Just clone the git repository and put the jars named in I<DEPENDENCIES> into a folder named "lib". Then you can execute
+
+ ant compile
+ ant jar
+
+
+=head2 CONFIGURATION
+
+Copy the file I<response-header-filter-1.0.jar> onto your server expand the classpath with it.
+
+If you're using tanuki wrapper open your wrapper.conf and add the following entries:
+
+ wrapper.java.classpath.4=/usr/share/java/commons-collections.jar
+ wrapper.java.classpath.5=/usr/share/java/commons-lang.jar
+ wrapper.java.classpath.6=/usr/share/java/tomcat6-servlet-2.5-api.jar
+ wrapper.java.classpath.7=/usr/ahre/java/response-header-filter-1.0.jar
+
+Now open your I<web.xml> and add the following lines:
+
+ <filter>
+   <filter-name>ResponseHeaderFilter</filter-name>
+   <filter-class>com.avlesh.web.filter.responseheaderfilter.ResponseHeaderManagerFilter</filter-class>
+   <init-param>
+     <param-name>configFile</param-name>
+     <param-value>/path/to/your/header-filter-conf.xml</param-value>
+   </init-param>
+ </filter>
+ <filter-mapping>
+   <filter-name>ResponseHeaderFilter</filter-name>
+   <url-pattern>*</url-pattern>
+ </filter-mapping>
+
+
+And create a configuration file for the header filter. For example I</path/to/your/header-filter-conf.xml> and add the following to it:
+
+ <?xml version="1.0" encoding="UTF-8" ?>
+ <response-header-mapper>
+ <!-- generic rule for all html requests -->
+    <mapping url=".*">
+       <default>
+          <response-headers>
+             <header key="X-ServedBy" value="FooBar"/>
+          </response-headers>
+       </default>
+    </mapping>
+ </response-header-mapper>
+
+

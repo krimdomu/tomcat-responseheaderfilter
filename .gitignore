@@ -21,3 +21,4 @@ doc/html
 *.txt
 *.class
 lib
+dist

@@ -20,3 +20,4 @@ doc/bootstrap.pod
 doc/html
 *.txt
 *.class
+lib
